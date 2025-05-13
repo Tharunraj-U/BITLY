@@ -52,12 +52,15 @@ public class WebSecurityConfig {
         return  new BCryptPasswordEncoder();
     }
 
-    public DaoAuthenticationProvider daoAuthenticationConfigurer(){
-        DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationConfigurer() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();

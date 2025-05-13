@@ -90,7 +90,5 @@ public class UserDetailsImpl implements UserDetails {
         return email;
     }
 
-    public Long getId() {
-        return id;
-    }
+
 }

@@ -1,6 +1,7 @@
 package com.bitly.URL_Backend.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -19,8 +20,9 @@ public class UrlMapping {
     private LocalDateTime createdDate;
 
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "users_id")
+    @JsonIgnore
     private User user;
 
     @OneToMany(mappedBy = "urlMapping")

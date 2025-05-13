@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users") // optional, avoids using reserved keywords like 'user' in some databases
 public class User {
@@ -72,4 +74,7 @@ public class User {
         this.role = role;
         return this;
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UrlMapping> urlMapping;
 }

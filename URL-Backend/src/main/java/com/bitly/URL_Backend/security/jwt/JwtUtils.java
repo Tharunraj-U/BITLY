@@ -1,6 +1,6 @@
 package com.bitly.URL_Backend.security.jwt;
 
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,55 +12,71 @@ import java.security.Key;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-
 @Component
 public class JwtUtils {
-   private  final  String secret = "Km9Vc8UzL3Rnbk5vcEd1cGpQaXZ4V29VdDVmQ1lxaDA=";
+    // Use a strong secret key (base64 encoded)
+    private final String secret = "Km9Vc8UzL3Rnbk5vcEd1cGpQaXZ4V29VdDVmQ1lxaDA=";
 
-    public String getJwtFromHeader(HttpServletRequest request){
-        String token=request.getHeader("Authorization");
-        if(token != null && token.startsWith("Bearer ")){
-            return  token.substring(7);
+    // Helper to get token from HTTP header
+    public String getJwtFromHeader(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
         }
         return null;
     }
 
-    public  String generateToken(UserDetailsImpl userDetails){
-        String email=userDetails.getEmail();
-        String roles=userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect( Collectors.joining(","));
-        return Jwts.builder()
-                .subject(email)
+    // Generate token using user details
+    public String generateToken(UserDetailsImpl userDetails) {
+        String email = userDetails.getEmail();
+        String roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        return Jwts.builder().setSubject(email)
                 .claim("roles", roles)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 3600000))
-                .signWith(key())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hour
+                .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
-
     }
-    private Key key(){
 
+    // Decode the secret key
+    private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
-    public String  getUserNameFromToken(String token){
-        return Jwts.parser().
-                verifyWith((SecretKey) key()).
-                build().
-                parseSignedClaims(token).
-                getPayload().getSubject();
+    // Extract username (subject) from token
+    public String getUserNameFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
-    public  boolean validateToken(String token){
+    // Validate the token
+    public boolean validateToken(String token) {
         try {
-            Jwts.parser().verifyWith((SecretKey) key()).build()
-                    .parseSignedClaims(token);
-        }catch (Exception e){
-            throw  new RuntimeException(e);
+            Jwts.parserBuilder()
+                    .setSigningKey(key())
+                    .build()
+                    .parseClaimsJws(token); // Use ClaimsJws parser for validation
+
+            return true;
+        } catch (io.jsonwebtoken.security.SignatureException e) {
+            System.out.println("❌ Invalid JWT signature");
+        } catch (MalformedJwtException e) {
+            System.out.println("❌ Malformed JWT token");
+        } catch (ExpiredJwtException e) {
+            System.out.println("❌ JWT token expired");
+        } catch (UnsupportedJwtException e) {
+            System.out.println("❌ Unsupported JWT token");
+        } catch (IllegalArgumentException e) {
+            System.out.println("❌ JWT token string is empty");
         }
 
-        return true;
+        return false;
     }
-
-
-
 }

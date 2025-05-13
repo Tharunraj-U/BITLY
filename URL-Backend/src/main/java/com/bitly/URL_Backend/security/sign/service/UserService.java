@@ -42,14 +42,19 @@ public class UserService {
     }
 
 
-    public JwtAuthResponce authenticate(LoginRequest loginRequest) {
+    public String authenticate(LoginRequest loginRequest) {
         Authentication authentication=authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword()));
         if (authentication == null) {
             throw new BadCredentialsException("Invalid email or password");
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails=(UserDetailsImpl) authentication.getPrincipal();
-        String  jwt=jwtUtils.generateToken(userDetails);
-        return  new JwtAuthResponce(jwt);
+        String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTJAZ21haWwuY29tIiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3NDcxNTIwNzYsImV4cCI6MTc0NzE1NTY3Nn0.PM23Eq_QkKHeiyH94BgbQD4Nvf7hfzPWg6cgF4HwbcI";
+        boolean isValid = jwtUtils.validateToken(token);
+        System.out.println(isValid ? "Valid JWT Token" : "Invalid JWT Token");
+
+        return   jwtUtils.generateToken(userDetails);
+
+
     }
 }
