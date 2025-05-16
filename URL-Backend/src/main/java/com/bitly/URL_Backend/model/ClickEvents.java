@@ -1,5 +1,6 @@
 package com.bitly.URL_Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ public class ClickEvents {
 
     @ManyToOne
     @JoinColumn(name = "url_mapping_id")
+    @JsonIgnore
     private UrlMapping urlMapping;
 
     public LocalDateTime getClickedDate() {

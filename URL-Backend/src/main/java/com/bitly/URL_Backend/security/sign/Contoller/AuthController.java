@@ -1,7 +1,8 @@
-package com.bitly.URL_Backend.security.sign.controller;
+package com.bitly.URL_Backend.security.sign.Contoller;
 
 import com.bitly.URL_Backend.model.User;
 import com.bitly.URL_Backend.security.sign.dto.LoginRequest;
+import com.bitly.URL_Backend.security.sign.dto.LoginResponse;
 import com.bitly.URL_Backend.security.sign.dto.RegisterRequest;
 import com.bitly.URL_Backend.security.sign.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+
 public class AuthController {
 
     @Autowired
@@ -37,15 +39,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> signInUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> signInUser(@RequestBody LoginRequest loginRequest) {
         String token = userService.authenticate(loginRequest);
 
         if (token != null) {
-            return ResponseEntity.ok("Login successful, token: " + token);
+
+            return ResponseEntity.ok(new LoginResponse("Login successful",token));
         }
 
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Invalid credentials.");
+                .body(new LoginResponse("Invalid credentials.",null));
 
     }
 }
