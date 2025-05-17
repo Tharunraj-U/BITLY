@@ -158,7 +158,7 @@ const Home = () => {
     try {
       const token = JSON.parse(localStorage.getItem("token"));
       const res = await axios.post(
-        "http://localhost:8080/api/url/shortUrl",
+        "https://bitly-latest.onrender.com/api/url/shortUrl",
         { originalUrl },
         {
           headers: {
@@ -187,7 +187,7 @@ const Home = () => {
     try {
       const token = JSON.parse(localStorage.getItem("token"));
       if (token) {
-        const res = await axios.get("http://localhost:8080/api/url/getAll", {
+        const res = await axios.get("https://bitly-latest.onrender.com/api/url/getAll", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -433,7 +433,7 @@ const Home = () => {
                   }}
                 >
                   <Link
-                    to={`http://localhost:8080/${shortenedUrl}`}
+                    to={`https://bitly-latest.onrender.com/${shortenedUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ 
@@ -447,12 +447,12 @@ const Home = () => {
                     }}
                   >
                     <FiExternalLink size={20} />
-                    {`http://localhost:8080/${shortenedUrl}`}
+                    {`https://bitly-latest.onrender.com/${shortenedUrl}`}
                   </Link>
                   
                   <Tooltip title="Copy to clipboard">
                     <IconButton 
-                      onClick={() => copyToClipboard(`http://localhost:8080/${shortenedUrl}`)}
+                      onClick={() => copyToClipboard(`https://bitly-latest.onrender.com/${shortenedUrl}`)}
                       color="primary"
                     >
                       <HiOutlineClipboardCopy size={20} />
@@ -600,7 +600,7 @@ const Home = () => {
                             }}
                           >
                             <Link
-                              to={`http://localhost:8080/${item.shortUrl}`}
+                              to={`https://bitly-latest.onrender.com/${item.shortUrl}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               style={{ 
@@ -613,12 +613,12 @@ const Home = () => {
                               }}
                             >
                               <FiExternalLink size={16} />
-                              {`http://localhost:8080/${item.shortUrl}`}
+                              {`https://bitly-latest.onrender.com/${item.shortUrl}`}
                             </Link>
                             
                             <Tooltip title="Copy to clipboard">
                               <IconButton 
-                                onClick={() => copyToClipboard(`http://localhost:8080/${item.shortUrl}`)}
+                                onClick={() => copyToClipboard(`https://bitly-latest.onrender.com/${item.shortUrl}`)}
                                 size="small"
                                 color="primary"
                               >
