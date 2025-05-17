@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import ProtectComponent from './module/ProtectComponent'
 import { logout } from './store/authSlice'
 import './index.css'
-import Login from './module/login'
+import Login from './module/Login'
 import NotFound from './module/NotFound'
 
 function App() {
