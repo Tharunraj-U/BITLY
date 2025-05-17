@@ -48,96 +48,91 @@ export default function ClickBarChart({ urlKey = "3XawOtqf" }) {
     }
   };
 
-  useEffect(() => {
-    const fetchClickData = async () => {
-      setLoading(true);
-      setError(null);
+useEffect(() => {
+  const fetchClickData = async () => {
+    setLoading(true);
+    setError(null);
 
-      const baseUrl = "http://localhost:8080/api/url/UrlSpecific";
+    const baseUrl = "http://localhost:8080/api/url/UrlSpecific";
 
-      // Calculate date range: last 7 days, ending today at 23:59:59.999
-      const endDate = new Date();
-      endDate.setHours(23, 59, 59, 999);
+    // ✅ Accurate date range: from 00:00 6 days ago to NOW
+    const now = new Date(); // right now
 
-      const startDate = new Date(endDate);
-      startDate.setDate(endDate.getDate() - 7);
-      startDate.setHours(0, 0, 0, 0); // start of day 7 days ago
+    const startDate = new Date();
+    startDate.setDate(now.getDate() - 6); // last 7 days including today
+    startDate.setHours(0, 0, 0, 0); // start of day
+    
 
-      // Format date to ISO string without trailing 'Z'
-      const formatDate = (date) => date.toISOString().replace("Z", "");
-
-      const fullUrl = `${baseUrl}/${urlKey}?startDate=${formatDate(
-        startDate
-      )}&endDate=${formatDate(endDate)}`;
-
-      console.log("Fetching data from:", fullUrl);
-
-      try {
-        const token = JSON.parse(localStorage.getItem("token"));
-        console.log("Using token:", token);
-
-        const response = await axios.get(fullUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        console.log("API response data:", response.data);
-
-        const apiData = response.data || [];
-
-        if (apiData.length === 0) {
-          setError("No click data found for the selected URL and date range.");
-          setLoading(false);
-          return;
-        }
-
-        // Format dates nicely
-        const formattedData = apiData.map(item => {
-          // Convert date string to Date object
-          const date = new Date(item.clickedDate);
-          // Format date as MM/DD
-          const formattedDate = `${date.getMonth() + 1}/${date.getDate()}`;
-          return {
-            ...item,
-            formattedDate
-          };
-        });
-
-        // Prepare chart data with formatted dates
-        const labels = formattedData.map((item) => item.formattedDate);
-        const counts = formattedData.map((item) => Math.round(item.count));
-
-        // Assign colors from the current theme
-        const currentTheme = themes[theme];
-        const backgroundColors = counts.map((_, index) => 
-          currentTheme.backgroundColor[index % currentTheme.backgroundColor.length]
-        );
-
-        setChartData({
-          labels,
-          datasets: [
-            {
-              label: "Click Count",
-              data: counts,
-              backgroundColor: backgroundColors,
-              borderColor: currentTheme.borderColor,
-              borderWidth: 1,
-              borderRadius: 5,
-              barThickness: 30,
-            },
-          ],
-        });
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load data. Please try again.");
-      } finally {
-        setLoading(false);
-      }
+    // Fix: Ensure correct ISO format with timezone offset removed
+    const formatDate = (date) => {
+      const tzOffset = date.getTimezoneOffset() * 60000; // offset in ms
+      return new Date(date - tzOffset).toISOString().slice(0, -1); // remove 'Z'
     };
 
-    fetchClickData();
-  }, [urlKey, theme]);
+    const fullUrl = `${baseUrl}/${urlKey}?startDate=${formatDate(
+      startDate
+    )}&endDate=${formatDate(now)}`;
+
+ 
+
+
+    try {
+      const token = JSON.parse(localStorage.getItem("token"));
+
+      const response = await axios.get(fullUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const apiData = response.data || [];
+
+      if (apiData.length === 0) {
+        setError("No click data found for the selected URL and date range.");
+        setLoading(false);
+        return;
+      }
+
+      const formattedData = apiData.map(item => {
+        const date = new Date(item.clickedDate);
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}`;
+        return { ...item, formattedDate };
+      });
+
+      const labels = formattedData.map((item) => item.formattedDate);
+      const counts = formattedData.map((item) => Math.round(item.count));
+
+      const currentTheme = themes[theme];
+      const backgroundColors = counts.map((_, index) =>
+        currentTheme.backgroundColor[index % currentTheme.backgroundColor.length]
+      );
+
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: "Click Count",
+            data: counts,
+            backgroundColor: backgroundColors,
+            borderColor: currentTheme.borderColor,
+            borderWidth: 1,
+            borderRadius: 5,
+            barThickness: 30,
+          },
+        ],
+      });
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError("Failed to load data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchClickData();
+}, [urlKey, theme]);
+
+
 
   // Enhanced chart options
   const options = {
